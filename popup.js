@@ -249,18 +249,12 @@ async function saveKYCData() {
   const idBackInput = document.getElementById("idBack");
   const selfieInput = document.getElementById("selfie");
 
-  // This should be at the top level, not inside saveKYCData
+  // Modify file handling in saveKYCData
   const storeFileWithRef = async (file, fieldName) => {
-    try {
-      const fileId = `${fieldName}_${Date.now()}`;
-      console.log("Storing file:", file.name, "as", fileId);
-      await storeFile(fileId, file);
-      return fileId;
-    } catch (error) {
-      console.error("File storage failed:", error);
-      updateInspectView(`File upload error: ${error.message}`);
-      throw error;
-    }
+    if (!file) return null;
+    const fileId = `${fieldName}_${Date.now()}`;
+    await storeFile(fileId, file);
+    return fileId;
   };
 
   kycData.passport = passportInput?.files[0] ? await storeFileWithRef(passportInput.files[0], 'passport') : null;
@@ -275,17 +269,9 @@ async function saveKYCData() {
     return;
   }
   try {
-    showProgress("Starting encryption...");
-    // Merge with existing data
-    const existing = await new Promise(r => chrome.storage.local.get("encryptedKYC", v => r(v.encryptedKYC)));
-    const mergedData = existing ? {...await decryptData(existing, passphrase), ...kycData} : kycData;
-    
-    showProgress("Cleaning up old files...");
-    await cleanupOrphanedFiles(mergedData);
-    
-    showProgress("Saving to storage...");
-    chrome.storage.local.set({ encryptedKYC: mergedData }, () => {
-      hideProgress();
+    const encrypted = await encryptData(kycData, passphrase);
+    await cleanupOrphanedFiles(encrypted);
+    chrome.storage.local.set({ encryptedKYC: encrypted }, () => {
       alert("KYC details and documents saved!");
       updateInspectView("Data saved successfully");
     });
@@ -821,8 +807,7 @@ async function retrieveFile(id) {
 
 async function cleanupOrphanedFiles(encryptedData) {
   const allFiles = await getAllFileIds();
-  const passphrase = document.getElementById("savePassphrase").value;
-  const usedFiles = new Set(Object.values(JSON.parse(await decryptData(encryptedData, passphrase))));
+  const usedFiles = new Set(Object.values(JSON.parse(await decryptData(encryptedData, 'temp'))));
   
   const db = await getDB();
   return new Promise((resolve) => {
@@ -844,30 +829,9 @@ function bytesToSize(bytes) {
   return `${Math.round(bytes / Math.pow(1024, i), 2)} ${sizes[i]}`;
 }
 
-let progressTimeout;
-
 function showProgress(message) {
-  progressTimeout = setTimeout(() => {
-    updateInspectView(message);
-    document.getElementById("saveKYCButton").disabled = true;
-    document.getElementById("autofillButton").disabled = true;
-  }, 500);
-}
-
-function hideProgress() {
-  clearTimeout(progressTimeout);
-  document.getElementById("saveKYCButton").disabled = false;
-  document.getElementById("autofillButton").disabled = false;
-}
-
-async function getAllFileIds() {
-  const db = await getDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(FILE_STORE, 'readonly');
-    const store = tx.objectStore(FILE_STORE);
-    const request = store.getAllKeys();
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = (e) => reject(e.target.error);
-  });
+  updateInspectView(message);
+  document.getElementById("autofillButton").disabled = true;
+  document.getElementById("saveKYCButton").disabled = true;
 }
 
