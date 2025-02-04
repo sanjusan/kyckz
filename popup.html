@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>KYC Autofill</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        width: 320px;
+        padding: 10px;
+      }
+      input,
+      button {
+        width: 100%;
+        margin: 5px 0;
+        box-sizing: border-box;
+      }
+      .section {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+      h3 {
+        margin: 0 0 10px 0;
+        font-size: 16px;
+      }
+      label {
+        font-size: 14px;
+        margin-top: 5px;
+        display: block;
+      }
+      /* inspect view style */
+      #inspectView {
+        border: 1px dashed #666;
+        padding: 10px;
+        margin-top: 10px;
+        max-height: 150px;
+        overflow-y: auto;
+        font-size: 12px;
+        background: #f5f5f5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="section">
+      <h3>KYC Details</h3>
+      <input type="text" id="firstName" placeholder="First Name" required />
+      <input type="text" id="lastName" placeholder="Last Name" required />
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="text" id="phoneCountryCode" placeholder="Phone Country Code (e.g., +44)" required />
+      <input type="text" id="phoneNumber" placeholder="Phone Number" required />
+      <input type="text" id="firstAddressLine" placeholder="Address Line 1" required />
+      <input type="text" id="secondAddressLine" placeholder="Address Line 2" />
+      <input type="text" id="city" placeholder="City" required />
+      <input type="text" id="postcode" placeholder="Postcode" required />
+      <input type="text" id="country" placeholder="Country" required />
+      <input type="date" id="dob" placeholder="Date of Birth" required />
+    </div>
+    <div class="section">
+      <h3>KYC Documents</h3>
+      <label for="passport">Passport:</label>
+      <input type="file" id="passport" accept="image/png, image/jpeg, application/pdf" />
+      <label for="idFront">ID Front:</label>
+      <input type="file" id="idFront" accept="image/png, image/jpeg, application/pdf" />
+      <label for="idBack">ID Back:</label>
+      <input type="file" id="idBack" accept="image/png, image/jpeg, application/pdf" />
+      <label for="selfie">Selfie:</label>
+      <input type="file" id="selfie" accept="image/png, image/jpeg, application/pdf" />
+    </div>
+    <div class="section">
+      <h3>Encryption Settings</h3>
+      <input
+        type="password"
+        id="savePassphrase"
+        placeholder="Encryption Passphrase (for saving)"
+        required
+      />
+      <input
+        type="password"
+        id="autofillPassphrase"
+        placeholder="Encryption Passphrase (for autofill)"
+        required
+      />
+    </div>
+    <div class="section">
+      <button id="saveKYCButton">Save KYC Details &amp; Documents</button>
+    </div>
+    <div class="section">
+      <button id="autofillButton">Autofill KYC Form</button>
+    </div>
+    <!-- Debug/inspect view -->
+    <div class="section">
+      <h3>Debug / Inspect View</h3>
+      <div id="inspectView"></div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>

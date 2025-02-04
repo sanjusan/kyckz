@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "KYC Autofill Extension",
+  "version": "1.0",
+  "description": "Stores encrypted KYC details and documents locally and autofills forms using advanced AI.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "KYC Autofill"
+  },
+  "permissions": [
+    "storage",
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "<all_urls>",
+    "https://api.openai.com/*"
+  ]
+}
